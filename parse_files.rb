@@ -1,11 +1,13 @@
 require 'open-uri'
 require 'nokogiri'
-$year = '2015'
-$download_path = "E:\\Ruby\\WorkSpace\\downloads\\#{$year}\\"
+
+$download_path = nil
 $file_path = nil
+$max_pages_listing = 5
 
 def set_path_by_url(url)
   path = url.split('/').last
+
   $file_path = "#{$download_path}#{path}\\"
 end
 
@@ -49,29 +51,38 @@ end
 def parse_forum(url)
   puts "Parsing forum processing..."
   begin
-    download_path = get_path_by_url(url)
-    Dir.mkdir(download_path) if !Dir.exist?(download_path)
+    img_i = 1
+    set_path_by_url(url)
+    # listing pages <=5 pages
+    main_page = Nokogiri::HTML(open(url.to_s))
+    page_count = main_page.css("ul[class='switches switchesTbl forum-pages']").css('.numPages')[0].text
+    page_count.to_i <= $max_pages_listing ? page_count = page_count.to_i : page_count = $max_pages_listing
+    for page_i in 1..page_count
+      # puts "url = #{url}"
+      page_url = url
+      page_url[-1] = page_i.to_s
+      puts "parsing images at #{page_url}"
 
-    page = Nokogiri::HTML(open(url.to_s))
-    forum = page.css(".gTable")
-    forum.css("img[src]").each do |img|
+      page = Nokogiri::HTML(open(page_url.to_s))
+      forum = page.css(".gTable")
+      forum.css("img[src]").each do |img|
 
-      # debuging info
-      puts img['src'] if !img['src'].include?('s106.ucoz.net') &&
-          !img['src'].include?("rg4u.clan.su/imgr/") &&
-          !img['src'].include?("rg4u.clan.su") &&
-          img['src'].include?("http")
+        if !img['src'].include?('s106.ucoz.net') && !img['src'].include?("rg4u.clan.su/imgr/") &&
+            !img['src'].include?("rg4u.clan.su") && img['src'].include?("http")
+          # debuging info
+          puts "#{img_i} - #{img['src']}"
 
-      # download_file(img['src'], download_path) if !img['src'].include?('s106.ucoz.net') &&
-      #     !img['src'].include?("rg4u.clan.su/imgr/") &&
-      #     !img['src'].include?("rg4u.clan.su") &&
-      #     img['src'].include?("http")
-
+          download_file(img['src'])
+          img_i += 1
+        end
+      end
     end
   rescue => ex
-    puts ex.message
+    puts ex.full_message
   end
 end
+
+# parse_forum('http://rg4u.clan.su/forum/32-3292-1')
 
 # if !Dir.exist?(download_path)
 #   puts "not exist #{download_path}"
@@ -81,16 +92,6 @@ end
 
 # test = 'http://s106.ucoz.net/img/fr/moder.gif   rg4u.clan.su/imgr/'
 # puts test if !test.include?('s106.ucoz.net') || !test.include?("rg4u.clan.su/imgr/")
-
-
-def parse_files(url)
-  puts "Parsing files processing..."
-  #puts parse_files('http://rg4u.clan.su/news/2017-11-06-2664')
-  url.to_s.include?('/forum/') ? parse_forum(url) : parse_news(url)
-
-  # parse_forum('http://rg4u.clan.su/news/2017-11-16-2691')
-  # parse_news('http://rg4u.clan.su/news/sorevnovanija_po_khudozhestvennoj_gimnastike_parad_gracij_26_28_01_2018_saransk_respublika_mordovija/2018-01-04-2779')
-end
 
 # parse_files('http://rg4u.clan.su/news/2018-02-18-2960')
 # str = 'E:\Ruby\WorkSpace\sport_parser_a\downloads\2017-11-16-2691\83968873.jpg?1'
@@ -105,25 +106,22 @@ def get_links_calendar_by_year(url)
   forum = page.css("font[color='#800000']")
   forum.css("a[href]").each do |link|
     puts link['href'] if link['href'].include?('tournaments/RU/List_IRGT_RU')
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2011.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2012.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2013.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2014.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2015.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2016.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2017.htm
+    # http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2018.htm
+    #
   end
 end
-
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2011.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2012.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2013.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2014.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2015.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2016.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2017.htm
-# http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_2018.htm
-#
 
 
 def parse_post(url)
   puts "Parsing post processing..."
   begin
-    download_path = get_path_by_url(url)
-    Dir.mkdir(download_path) if !Dir.exist?(download_path)
     post = url.split('/')[-1].split('-')[2]
     page = Nokogiri::HTML(open(url.to_s))
     td = page.css("#post#{post}")
@@ -138,7 +136,7 @@ def parse_post(url)
       #     img['src'].include?("http")
     end
   rescue => ex
-    puts ex.message
+    puts ex.full_message
   end
 end
 
@@ -189,14 +187,14 @@ def parse_calendar(url)
   tr_i = 0
 
   table.css('tr').each do |tr|
-    puts "строка=#{tr_i}"
+    puts "row=#{tr_i}"
     td_i = 0
     link_i = 0
     tr_i += 1
     tds = tr.css('td')
     if tds.count == 4
       tds.each do |td|
-        puts "  столбец=#{td_i}"
+        puts "  column=#{td_i}"
 
         td_i += 1
         # puts "  #{td.to_html}" if td_i == 4
@@ -209,27 +207,36 @@ def parse_calendar(url)
       #puts tr
       if tr.css('a[href]')
         tr.css('a').each do |link|
-          puts "    ссылка=#{link_i}"
+          puts "    link=#{link_i}"
           link_i += 1
           # puts link
           # puts link["title"][0].text
           puts "      #{link['href'].strip}"
           if link['href'.strip].to_s.include?("/news/")
+            puts "parse news at #{link['href'].strip}"
+            puts 'SKIP'
             # parse_news(link['href'].strip)
-            parse_documents(link['href'].strip)
+            # parse_documents(link['href'].strip)
           else
-            # link['href'.strip].to_s.match(/(?=\/\d{2}\-\d{3}\-\d{5}-\d{2})/) ?
-            #     parse_post(link['href'].strip) : parse_forum(link['href'].strip)
+            puts "parse forum at #{link['href'].strip}"
+            link['href'.strip].to_s.match(/(?=\/\d{2}\-\d{3}\-\d{5}-\d{2})/) ?
+                parse_post(link['href'].strip) : parse_forum(link['href'].strip)
           end
         end
       end
     end
-    #break if tr_i == 25
+    break if tr_i == 25
   end
 end
 
-for i in 2015..2015
-  puts "Parsing data at #{i}"
+
+start = Time.now
+for i in 2011..2017
+  puts "Parsing data at #{i} #{start}"
   $year = i
+  $download_path = "E:\\Ruby\\WorkSpace\\downloads\\#{$year}\\"
   parse_calendar("http://rg4u.clan.su/tournaments/RU/List_IRGT_RU_#{$year}.htm")
 end
+finish = Time.now
+result_time = finish - start
+puts Time.at(result_time).utc.strftime("%H:%M:%S")

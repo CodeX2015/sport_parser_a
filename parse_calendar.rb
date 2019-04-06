@@ -51,8 +51,7 @@ end
 def parse_forum(url)
   puts "Parsing forum processing..."
   begin
-    download_path = get_path_by_url(url)
-    Dir.mkdir(download_path) if !Dir.exist?(download_path)
+    set_path_by_url(url)
 
     page = Nokogiri::HTML(open(url.to_s))
     forum = page.css(".gTable")

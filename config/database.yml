@@ -1,0 +1,117 @@
+zoon_dev:
+  adapter: postgresql
+  host: 192.168.43.28
+  port: 5432
+  pool: 5
+  encoding: UTF8
+  database: zoon
+  username: postgres
+  password: '%@#UNKBfpXgU'
+
+zoon_prod:
+  adapter: postgresql
+  host: 10.8.0.6
+  port: 6432
+  database: zoon
+  username: echamps
+  password: 'r37u8wngASgw'
+  pool: 5
+  encoding: UTF8
+  variables:
+      statement_timeout: 5000
+
+nastart_dev:
+  adapter: postgresql
+  host: 192.168.43.28
+  port: 5432
+  pool: 5
+  encoding: UTF8
+  database: nastart
+  username: postgres
+  password: '%@#UNKBfpXgU'
+
+nastart_prod:
+  adapter: postgresql
+  host: 10.8.0.6
+  port: 6432
+  pool: 5
+  encoding: UTF8
+  variables:
+      statement_timeout: 5000
+  database: nastart
+  username: echamps
+  password: 'r37u8wngASgw'
+
+sportcubes_dev:
+  adapter: postgresql
+  host: 192.168.43.28
+  port: 5432
+  pool: 5
+  encoding: UTF8
+  database: sportcubes
+  username: postgres
+  password: '%@#UNKBfpXgU'
+
+sportcubes_prod:
+  adapter: postgresql
+  host: 10.8.0.6
+  port: 6432
+  pool: 5
+  encoding: UTF8
+  variables:
+      statement_timeout: 5000
+  database: sportcubes
+  username: echamps
+  password: 'r37u8wngASgw'
+
+test:
+  adapter: sqlite3
+  database: db/mydb2.sqlite3
+
+test_dev:
+  adapter: postgresql
+  host: 192.168.43.28
+  port: 5432
+  pool: 5
+  encoding: UTF8
+  database: test_db
+  username: postgres
+  password: '%@#UNKBfpXgU'
+
+echamps_test:
+  adapter: postgresql
+  host: 192.168.43.28
+  port: 5432
+  pool: 5
+  encoding: UTF8
+  database: echamps
+  username: postgres
+  password: '%@#UNKBfpXgU'
+
+echamps_dev:
+  adapter: postgresql
+  host: 159.69.21.50
+  port: 6432
+  pool: 5
+  encoding: UTF8
+  variables:
+    statement_timeout: 5000
+  database: echamps
+  username: echamps
+  password: 'r37u8wngASgw'
+  reconnect: true
+  prepared_statements: true
+
+echamps_prod:
+  adapter: postgresql
+  host: 10.8.0.7
+  port: 6432
+  pool: 5
+  encoding: UTF8
+  variables:
+    statement_timeout: 5000
+  database: echamps
+  username: echamps
+  password: 'r37u8wngASgw'
+  reconnect: true
+  prepared_statements: true
